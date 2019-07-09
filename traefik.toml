@@ -1,0 +1,35 @@
+debug = false
+logLevel = "ERROR"
+
+defaultEntryPoints = ["http", "https"]
+
+[web]
+# Port for the status/dashboard page
+address = ":81"
+
+[entryPoints]
+    [entryPoints.http]
+    address = ":80"
+        [entryPoints.http.redirect]
+        entryPoint = "https"
+
+    [entryPoints.https]
+    address = ":443"
+    [entryPoints.https.tls]
+
+[retry]
+
+[docker]
+endpoint = "unix:///var/run/docker.sock"
+domain = "janewilde.ga"
+watch = true
+exposedByDefault = false
+
+[acme]
+email = "janne.spijkervet@gmail.com"
+storage = "acme.json"
+entryPoint = "https"
+onHostRule = true
+
+[acme.httpChallenge]
+entryPoint = "http"
