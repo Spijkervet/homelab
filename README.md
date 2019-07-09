@@ -4,9 +4,9 @@ It also allows the option to automatically backup to Backblaze.
 
 
 ## Installation
-Simply run `docker-compose up -d` to start all microservices.
+Simply run `docker-compose up -d` in each folder to start all microservices.
 
-Add an .env file with the following contents:
+Add an .env file with the following contents in the `nextcloud` folder:
 ```
 ####################
 # General settings #
