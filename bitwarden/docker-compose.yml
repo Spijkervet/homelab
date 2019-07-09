@@ -1,0 +1,20 @@
+version: '3'
+services:
+    bitwarden:
+        image: bitwardenrs/server:latest
+        container_name: bitwarden
+        volumes:
+            - /docker/bitwarden/data:/data/
+        labels:
+            - traefik.docker.network=traefik
+            - traefik.enable=true
+            - traefik.web.frontend.rule=Host:pass.${HOSTNAME}
+            - traefik.web.port=80
+            - traefik.hub.frontend.rule=Host:pass.${HOSTNAME};Path:/notifications/hub
+            - traefik.hub.port=3012
+            - traefik.hub.protocol=ws
+        networks:
+            - traefik
+networks:
+    traefik:
+        external: true

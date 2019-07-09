@@ -1,20 +1,5 @@
 version: '3.5'
 services:
-  traefik:
-    image: traefik
-    container_name: traefik
-    restart: always
-    ports:
-      - "80:80"
-      - "443:443"
-      - "81:81"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./traefik.toml:/traefik.toml
-      - ./acme.json:/acme.json
-    networks:
-      - web
-
   db:
     image: mysql:${MYSQL_VERSION}
     command: mysqld --default-authentication-plugin=mysql_native_password
@@ -46,11 +31,11 @@ services:
     depends_on:
       - db 
     networks:
-      - web
+      - traefik 
       - internal
     labels:
       - "traefik.backend=nextcloud"
-      - "traefik.docker.network=web"
+      - "traefik.docker.network=traefik"
       - "traefik.enable=true"
       - "traefik.frontend.rule=Host:backup.janewilde.ga"
       - "traefik.port=80"
@@ -78,5 +63,5 @@ services:
 
 networks:
   internal:
-  web:
+  traefik:
     external: true
