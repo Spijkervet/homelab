@@ -1,3 +1,13 @@
+# Nextcloud Docker Stack
+This is a repository containing my Nextcloud stack built on Docker. All services live behind a Traefik reverse proxy.
+It also allows the option to automatically backup to Backblaze.
+
+
+## Installation
+Simply run `docker-compose up -d` to start all microservices.
+
+Add an .env file with the following contents:
+```
 ####################
 # General settings #
 ####################
@@ -31,4 +41,5 @@ BACKUP_ENCRYPTION_KEY=!
 
 # Name of the backup
 BACKUP_NAME=nextcloud-backup
+```
 
