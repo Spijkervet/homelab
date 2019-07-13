@@ -1,0 +1,26 @@
+version: '3.5'
+services:
+  odoo:
+    image: odoo:latest
+    volumes:
+        - /docker/odoo/addons:/mnt/extra-addons
+    environment:
+      - HOST=db
+      - USER=docker
+      - PASSWORD=postgres
+    networks:
+        - db 
+        - traefik
+    labels:
+      - "traefik.backend=odoo"
+      - "traefik.docker.network=traefik"
+      - "traefik.enable=true"
+      - "traefik.frontend.rule=Host:odoo.${HOSTNAME}"
+      - "traefik.port=8069"
+
+networks:
+    traefik:
+        external: true
+    db:
+        driver: overlay
+        name: db 

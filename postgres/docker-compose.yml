@@ -1,0 +1,19 @@
+version: '3.5'
+services:
+  db:
+    image: postgres:10
+    container_name: db
+    restart: always
+    environment:
+      - POSTGRES_DB=postgres
+    env_file:
+      - ../db.env
+    volumes:
+      - "/docker/postgresql:/var/lib/postgresql/data"
+    networks:
+      - db 
+
+networks:
+    db:
+        driver: overlay
+        name: db 
