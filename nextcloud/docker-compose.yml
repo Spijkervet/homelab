@@ -1,19 +1,18 @@
 version: '3.5'
 services:
   nextcloud:
-    # build: .
-    # image: nextcloud:smb 
-    # image: nextcloud:${NEXTCLOUD_VERSION}
-    image: nextcloud:latest
+    build: .
+    image: nextcloud:apache-smb
+    # image: "nextcloud:${NEXTCLOUD_VERSION}"
+    env_file:
+      - ../db.env
     restart: always
     volumes:
-      - "/docker/nextcloud:/var/www/html"
-      - "/mnt:/mnt"
+      - "${DATA_DIR}/nextcloud:/var/www/html"
+      - "/media:/media"
     environment:
       - POSTGRES_DB=nextcloud
       - POSTGRES_HOST=db
-    env_file:
-      - ../db.env
     networks:
       - traefik 
       - db 
@@ -27,7 +26,7 @@ services:
     image: redis
     container_name: redis
     volumes:
-      - "/docker/nextcloud/redis:/data"
+      - "${DATA_DIR}/nextcloud/redis:/data"
     networks:
       - db 
 

@@ -1,0 +1,403 @@
+version: '3.5'
+services:
+  # Organizer - Unified HTPC/Home Server Web Interface
+  organizr:
+    container_name: organizr
+    restart: always
+    image: lsiocommunity/organizr
+    volumes:
+      - ${DATA_DIR}/media/organizr:/config
+      - ${DATA_DIR}/media/shared:/shared
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    networks:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.backend=organizr"
+      - "traefik.frontend.rule=Host:organizr.${HOSTNAME}"  
+      - "traefik.port=80"
+      - "traefik.docker.network=traefik"
+
+  heimdall:
+    image: linuxserver/heimdall
+    container_name: heimdall
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - ${DATA_DIR}/media/heimdall:/config
+    restart: always
+    networks:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.backend=heimdall"
+      - "traefik.frontend.rule=Host:heimdall.${HOSTNAME}"
+      - "traefik.port=80"
+      - "traefik.docker.network=traefik"
+
+  ######### DOCKER RELATED ##########
+  # Watchtower - Automatic Update of Containers/Apps
+  watchtower:
+    container_name: watchtower
+    hostname: watchtower
+    restart: always
+    image: v2tec/watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: --schedule "0 0 4 * * *" --cleanup
+
+  transmission:
+    image: linuxserver/transmission
+    container_name: transmission
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - TRANSMISSION_WEB_HOME=/combustion-release/ #optional
+    volumes:
+      - ${DATA_DIR}/media/transmission:/config
+      - ${DATA_DIR}/media/downloads:/downloads
+      - ${DATA_DIR}/media/downloads:/watch
+    ports:
+      - 9091:9091
+      - 51413:51413
+      - 51413:51413/udp
+    restart: always 
+    networks:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.backend=transmission"
+      - "traefik.frontend.rule=Host:transmission.${HOSTNAME}"
+#      - "traefik.frontend.rule=Host:${HOSTNAME}; PathPrefix: /transmission"
+      - "traefik.port=9091"
+      - "traefik.docker.network=traefik"
+
+  # SABnzbd – Usenet (NZB) Downloader
+  sabnzbd:
+    image: "linuxserver/sabnzbd"
+    container_name: "sabnzbd"
+    volumes:
+      - ${DATA_DIR}/docker/sabnzbd:/config
+      - ${DATA_DIR}/media/downloads/complete:/downloads
+      - ${DATA_DIR}/media/downloads/incomplete:/incomplete-downloads
+      - ${DATA_DIR}/docker/shared:/shared
+#    ports:
+#        - "XXXX:8080"
+    restart: always
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    networks:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.backend=sabnzbd"
+      - "traefik.frontend.rule=Host:sabnzbd.${HOSTNAME}"
+#      - "traefik.frontend.rule=Host:${HOSTNAME}; PathPrefix: /sabnzbd"
+      - "traefik.port=8080"
+      - "traefik.docker.network=traefik"
+
+  ######### PERSONAL VIDEO RECORDERS ##########
+  # Radarr – Movie Download and Management
+  radarr:
+    image: "linuxserver/radarr"
+    container_name: "radarr"
+    volumes:
+      - ${DATA_DIR}/media/radarr:/config
+      - ${DATA_DIR}/media/downloads:/downloads
+      - ${MEDIA_DIR}/movies:/movies
+      - "/etc/localtime:/etc/localtime:ro"
+      - ${DATA_DIR}/media/shared:/shared
+#    ports:
+#      - "XXXX:7878"
+    restart: always
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    networks:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.backend=radarr"
+#      - "traefik.frontend.rule=Host:${HOSTNAME}; PathPrefix: /radarr"
+      - "traefik.frontend.rule=Host:radarr.${HOSTNAME}"
+      - "traefik.port=7878"
+      - "traefik.docker.network=traefik"
+      - "traefik.frontend.headers.SSLRedirect=true"
+      - "traefik.frontend.headers.STSSeconds=315360000"
+      - "traefik.frontend.headers.browserXSSFilter=true"
+      - "traefik.frontend.headers.contentTypeNosniff=true"
+      - "traefik.frontend.headers.forceSTSHeader=true"
+      - "traefik.frontend.headers.SSLHost=example.com"
+      - "traefik.frontend.headers.STSIncludeSubdomains=true"
+      - "traefik.frontend.headers.STSPreload=true"
+      - "traefik.frontend.headers.frameDeny=true"
+
+# Sonarr – TV Show Download and Management
+  sonarr:
+    image: "linuxserver/sonarr"
+    container_name: "sonarr"
+    volumes:
+      - ${DATA_DIR}/media/sonarr:/config
+      - ${DATA_DIR}/media/downloads:/downloads
+      - ${MEDIA_DIR}/tvshows:/tv
+      - "/etc/localtime:/etc/localtime:ro"
+      - ${DATA_DIR}/media/shared:/shared
+#    ports:
+#        - "XXXX:8989"
+    restart: always
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    networks:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.backend=sonarr"
+#      - "traefik.frontend.rule=Host:${HOSTNAME}; PathPrefix: /sonarr"
+      - "traefik.frontend.rule=Host:sonarr.${HOSTNAME}"
+      - "traefik.port=8989"
+      - "traefik.docker.network=traefik"
+      - "traefik.frontend.headers.SSLRedirect=true"
+      - "traefik.frontend.headers.STSSeconds=315360000"
+      - "traefik.frontend.headers.browserXSSFilter=true"
+      - "traefik.frontend.headers.contentTypeNosniff=true"
+      - "traefik.frontend.headers.forceSTSHeader=true"
+      - "traefik.frontend.headers.SSLHost=example.com"
+      - "traefik.frontend.headers.STSIncludeSubdomains=true"
+      - "traefik.frontend.headers.STSPreload=true"
+      - "traefik.frontend.headers.frameDeny=true"
+
+#LIDARR - Music Download and Management
+  lidarr:
+    image: "linuxserver/lidarr"
+    hostname: lidarr
+    container_name: "lidarr"
+    volumes:
+      - ${DATA_DIR}/media/lidarr:/config
+      - ${DATA_DIR}/media/downloads:/downloads
+      - ${MEDIA_DIR}/music:/music
+      - "/etc/localtime:/etc/localtime:ro"
+      - ${DATA_DIR}/media/shared:/shared
+#    ports:
+#      - "XXXX:8686"
+    restart: always
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    networks:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.backend=lidarr"
+#      - "traefik.frontend.rule=Host:${HOSTNAME}; PathPrefix: /lidarr"
+      - "traefik.frontend.rule=Host:lidarr.${HOSTNAME}"
+      - "traefik.port=8686"
+      - "traefik.docker.network=traefik"
+      - "traefik.frontend.headers.SSLRedirect=true"
+      - "traefik.frontend.headers.STSSeconds=315360000"
+      - "traefik.frontend.headers.browserXSSFilter=true"
+      - "traefik.frontend.headers.contentTypeNosniff=true"
+      - "traefik.frontend.headers.forceSTSHeader=true"
+      - "traefik.frontend.headers.SSLHost=example.com"
+      - "traefik.frontend.headers.STSIncludeSubdomains=true"
+      - "traefik.frontend.headers.STSPreload=true"
+      - "traefik.frontend.headers.frameDeny=true"
+
+######### MEDIA SERVER APPS ##########
+
+# Plex Media Server
+  plexms:
+    container_name: plexms
+    restart: always
+    image: plexinc/pms-docker
+    volumes:
+      - ${DATA_DIR}/media/plexms:/config
+      - ${DATA_DIR}/media/plex_tmp:/transcode
+      - /media:/media
+      - ${DATA_DIR}/media/:/shared
+    ports:
+      - "32400:32400/tcp"
+      - "3005:3005/tcp"
+      - "8324:8324/tcp"
+      - "32469:32469/tcp"
+      - "1900:1900/udp"
+      - "32410:32410/udp"
+      - "32412:32412/udp"
+      - "32413:32413/udp"
+      - "32414:32414/udp"
+    environment:
+      - TZ=${TZ}
+      - HOSTNAME="Docker Plex"
+      - PLEX_CLAIM=${PLEX_CLAIM_TOKEN}
+      - PLEX_UID=${PUID}
+      - PLEX_GID=${PGID}
+      - ADVERTISE_IP="http://SERVER-IP:32400/"
+    networks:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.backend=plexms"
+      - "traefik.frontend.rule=Host:plex.${HOSTNAME}"
+      - "traefik.port=32400"
+      - "traefik.protocol=http"
+      - "traefik.docker.network=traefik"
+      # - "traefik.frontend.headers.SSLRedirect=true"
+      # - "traefik.frontend.headers.STSSeconds=315360000"
+      # - "traefik.frontend.headers.browserXSSFilter=true"
+      # - "traefik.frontend.headers.contentTypeNosniff=true"
+      # - "traefik.frontend.headers.forceSTSHeader=true"
+      # - "traefik.frontend.headers.SSLHost=example.com"
+      # - "traefik.frontend.headers.STSIncludeSubdomains=true"
+      # - "traefik.frontend.headers.STSPreload=true"
+      # - "traefik.frontend.headers.frameDeny=true"
+
+  # Tautulli (aka PlexPy) – Monitoring Plex Usage
+  tautulli:
+    container_name: tautulli
+    restart: always
+    image: linuxserver/tautulli
+    volumes:
+      - ${DATA_DIR}/media/tautulli/config:/config
+      - ${DATA_DIR}/media/tautulli/logs:/logs:ro
+      - ${DATA_DIR}/media/shared:/shared
+#    ports:
+#      - "8181:8181"
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    networks:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.backend=tautulli"
+      - "traefik.frontend.rule=Host:tautulli.${HOSTNAME}"
+#      - "traefik.frontend.rule=Host:${HOSTNAME}; PathPrefix: /tautulli"
+      - "traefik.port=8181"
+      - "traefik.docker.network=traefik"
+      - "traefik.frontend.headers.SSLRedirect=true"
+      - "traefik.frontend.headers.STSSeconds=315360000"
+      - "traefik.frontend.headers.browserXSSFilter=true"
+      - "traefik.frontend.headers.contentTypeNosniff=true"
+      - "traefik.frontend.headers.forceSTSHeader=true"
+      - "traefik.frontend.headers.SSLHost=example.com"
+      - "traefik.frontend.headers.STSIncludeSubdomains=true"
+      - "traefik.frontend.headers.STSPreload=true"
+      - "traefik.frontend.headers.frameDeny=true"
+
+  # Ombi – Accept Requests for your Media Server
+  ombi:
+    container_name: ombi
+    restart: always
+    image: linuxserver/ombi
+    volumes:
+      - ${DATA_DIR}/media/ombi:/config
+      - ${DATA_DIR}/media/shared:/shared
+      - /media:/media
+#    ports:
+#      - "3579:3579"
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    networks:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.backend=ombi"
+      - "traefik.frontend.rule=Host:ombi.${HOSTNAME}"
+#      - "traefik.frontend.rule=Host:${HOSTNAME}; PathPrefix: /ombi"
+      - "traefik.port=3579"
+      - "traefik.docker.network=traefik"
+      - "traefik.frontend.headers.SSLRedirect=true"
+      - "traefik.frontend.headers.STSSeconds=315360000"
+      - "traefik.frontend.headers.browserXSSFilter=true"
+      - "traefik.frontend.headers.contentTypeNosniff=true"
+      - "traefik.frontend.headers.forceSTSHeader=true"
+      - "traefik.frontend.headers.SSLHost=example.com"
+      - "traefik.frontend.headers.STSIncludeSubdomains=true"
+      - "traefik.frontend.headers.STSPreload=true"
+      - "traefik.frontend.headers.frameDeny=true"
+
+  ######### SEARCHERS ##########
+  # NZBHydra – NZB Meta Search
+  hydra:
+    image: "linuxserver/hydra"
+    container_name: "hydra"
+    volumes:
+      - ${DATA_DIR}/media/hydra:/config
+      - ${DATA_DIR}/media/downloads:/downloads
+      - ${DATA_DIR}/media/shared:/shared
+    restart: always
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    networks:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.backend=hydra"
+      - "traefik.frontend.rule=Host:hydra.${HOSTNAME}"
+      - "traefik.port=5075"
+      - "traefik.docker.network=traefik"
+      - "traefik.frontend.headers.SSLRedirect=true"
+      - "traefik.frontend.headers.STSSeconds=315360000"
+      - "traefik.frontend.headers.browserXSSFilter=true"
+      - "traefik.frontend.headers.contentTypeNosniff=true"
+      - "traefik.frontend.headers.forceSTSHeader=true"
+      - "traefik.frontend.headers.SSLHost=example.com"
+      - "traefik.frontend.headers.STSIncludeSubdomains=true"
+      - "traefik.frontend.headers.STSPreload=true"
+      - "traefik.frontend.headers.frameDeny=true"
+
+  # Jackett – Torrent Proxy
+  jackett:
+    image: "linuxserver/jackett"
+    container_name: "jackett"
+    volumes:
+      - ${DATA_DIR}/media/jackett:/config
+      - ${DATA_DIR}/media/downloads:/downloads
+      - "/etc/localtime:/etc/localtime:ro"
+      - ${DATA_DIR}/media/shared:/shared
+    ports:
+      - "9117:9117"
+    restart: always
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    networks:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.backend=jackett"
+      - "traefik.frontend.rule=Host:jackett.${HOSTNAME}"
+      - "traefik.port=9117"
+      - "traefik.docker.network=traefik"
+      - "traefik.frontend.headers.SSLRedirect=true"
+      - "traefik.frontend.headers.STSSeconds=315360000"
+      - "traefik.frontend.headers.browserXSSFilter=true"
+      - "traefik.frontend.headers.contentTypeNosniff=true"
+      - "traefik.frontend.headers.forceSTSHeader=true"
+      - "traefik.frontend.headers.SSLHost=example.com"
+      - "traefik.frontend.headers.STSIncludeSubdomains=true"
+      - "traefik.frontend.headers.STSPreload=true"
+      - "traefik.frontend.headers.frameDeny=true"
+
+networks:
+  traefik:
+    external: true
+  default:
+    driver: bridge

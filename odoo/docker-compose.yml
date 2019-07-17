@@ -2,6 +2,8 @@ version: '3.5'
 services:
   odoo:
     image: odoo:latest
+    container_name: odoo
+    restart: always
     volumes:
         - /docker/odoo/addons:/mnt/extra-addons
     environment:
