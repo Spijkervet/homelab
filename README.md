@@ -1,14 +1,14 @@
 # Homelab 
-> This is a repository containing my Homelab stack built on Docker. All services live behind a Traefik reverse proxy.
-> It also allows the option to automatically backup to Backblaze.
+This is a repository containing my Homelab stack built on Docker. All services live behind a Traefik reverse proxy.
+It also allows the option to automatically backup to Backblaze.
 
 
-> ## Installation
-> Simply run `./setup_home.sh` to start all microservices on the main server. `./setup_raspberry.sh` is used for microservices on the Raspberry Pi.
+## Installation
+Simply run `./setup_home.sh` to start all microservices on the main server. `./setup_raspberry.sh` is used for microservices on the Raspberry Pi.
 
-> Add an .env file with the following contents in the `nextcloud` folder:
-> ```
-> ####################
+Add an .env file with the following contents in the `nextcloud` folder:
+```
+####################
 # General settings #
 ####################
 
@@ -50,5 +50,5 @@ BACKUP_ENCRYPTION_KEY=
 
 # Name of the backup
 BACKUP_NAME=nextcloud-backups
-> ```
+```
 
