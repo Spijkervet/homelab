@@ -5,7 +5,7 @@ services:
     container_name: odoo
     restart: always
     volumes:
-        - /docker/odoo/addons:/mnt/extra-addons
+        - ${DATA_DIR}/odoo/addons:/mnt/extra-addons
     environment:
       - HOST=db
       - USER=docker

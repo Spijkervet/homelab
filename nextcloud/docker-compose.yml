@@ -4,15 +4,17 @@ services:
     build: .
     image: nextcloud:apache-smb
     # image: "nextcloud:${NEXTCLOUD_VERSION}"
-    env_file:
-      - ../db.env
+    container_name: nextcloud
     restart: always
     volumes:
-      - "${DATA_DIR}/nextcloud:/var/www/html"
-      - "/media:/media"
+      - nextcloud:/var/www/html
+      - "${MEDIA_DIR}:/media"
+    #  - "${DATA_DIR}/nextcloud:/var/www/html"
     environment:
       - POSTGRES_DB=nextcloud
       - POSTGRES_HOST=db
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     networks:
       - traefik 
       - db 
@@ -28,7 +30,7 @@ services:
     volumes:
       - "${DATA_DIR}/nextcloud/redis:/data"
     networks:
-      - db 
+      - db
 
   # backups:
   #   image: christophetd/duplicacy-autobackup:v1.0
@@ -43,6 +45,9 @@ services:
   #     B2_KEY: "${B2_KEY}"
   #   volumes:
   #     - "${DATA_DIR}:/data"
+
+volumes:
+  nextcloud:
 
 networks:
   db:
