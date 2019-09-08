@@ -14,10 +14,6 @@ docker-compose -f sharelatex/docker-compose.yml up -d
 
 cd nextcloud && docker-compose up -d && cd ../
 
-# sudo chown -R $PUID:$PGID /docker/media
-
-# docker stack deploy --compose-file traefik/docker-compose.yml \
-#     -c postgres/docker-compose.yml \
-#     -c nextcloud/docker-compose.yml \
-#     -c odoo/docker-compose.yml \
-#     home
+# Install full tex-live environment
+docker exec sharelatex tlmgr install scheme-full
+docker exec sharelatex apt-get update -y && apt-get install texlive-full -y
