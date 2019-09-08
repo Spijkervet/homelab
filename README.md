@@ -20,6 +20,14 @@ PGID=$(id -g)
 
 PLEX_CLAIM_TOKEN=""
 
+
+# Email settings
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=465
+SMTP_USER=
+SMTP_PASS=
+SMTP_FROM_ADDRESS=
+
 # Hostname at which the Nextcloud instance will be accessible.
 HOSTNAME=
 HOST_IP=

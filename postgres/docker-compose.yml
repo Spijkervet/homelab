@@ -16,8 +16,7 @@ services:
 
 networks:
     db:
-        driver: overlay
-        name: db 
+      external: true
 
 volumes:
   postgresql:

@@ -24,13 +24,6 @@ services:
       - "traefik.enable=true"
       - "traefik.frontend.rule=Host:backup.${HOSTNAME}"
       - "traefik.port=80"
-  redis:
-    image: redis
-    container_name: redis
-    volumes:
-      - "${DATA_DIR}/nextcloud/redis:/data"
-    networks:
-      - db
 
   # backups:
   #   image: christophetd/duplicacy-autobackup:v1.0
@@ -51,7 +44,6 @@ volumes:
 
 networks:
   db:
-    driver: overlay
-    name: db 
+    external: true
   traefik:
     external: true
