@@ -1,0 +1,33 @@
+version: "2"
+
+networks:
+    traefik:
+        external: true
+    db:
+        external: true
+services:
+    gitea:
+        image: gitea/gitea:latest
+        environment:
+            - USER_UID=${PUID}
+            - USER_GID=${PGID}
+            - DB_TYPE=postgres
+            - DB_HOST=db
+            - DB_NAME=gitea
+            - DB_USER=${POSTGRES_USER}
+            - DB_PASSWD=${POSTGRES_PASSWORD}
+        restart: always
+        networks:
+            - traefik
+            - db
+        volumes:
+            - ${DATA_DIR}/gitea/data:/data
+#        ports:
+#            - "3000:3000"
+#            - "222:22"
+        labels:
+            - "traefik.backend=gitea"
+            - "traefik.docker.network=traefik"
+            - "traefik.enable=true"
+            - "traefik.frontend.rule=Host:gitea.${HOSTNAME}"
+            - "traefik.port=3000"

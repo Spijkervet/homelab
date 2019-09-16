@@ -3,6 +3,8 @@ set -o allexport; source .env; set +o allexport
 docker network create traefik
 docker network create db
 
+docker-compose -f gitea/docker-compose.yml up -d
+
 docker-compose -f traefik/docker-compose.yml up -d
 docker-compose -f redis/docker-compose.yml up -d
 docker-compose -f postgres/docker-compose.yml up -d 
@@ -16,4 +18,4 @@ cd nextcloud && docker-compose up -d && cd ../
 
 # Install full tex-live environment
 docker exec sharelatex tlmgr install scheme-full
-docker exec sharelatex apt-get update -y && apt-get install texlive-full -y
+docker exec sharelatex apt-get update && apt-get install texlive-full -y

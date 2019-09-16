@@ -9,12 +9,10 @@ services:
         depends_on:
             - mongo
         privileged: true
-        ports:
-            - "5000:80"
         links:
             - mongo
         networks:
-       #    - traefik
+            - traefik
             - db
         labels:
             - "traefik.backend=sharelatex"
