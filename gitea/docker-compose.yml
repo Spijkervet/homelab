@@ -29,5 +29,5 @@ services:
             - "traefik.backend=gitea"
             - "traefik.docker.network=traefik"
             - "traefik.enable=true"
-            - "traefik.frontend.rule=Host:gitea.${HOSTNAME}"
+            - "traefik.frontend.rule=Host:git.${HOSTNAME}"
             - "traefik.port=3000"
