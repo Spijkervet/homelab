@@ -16,15 +16,14 @@ services:
             - DB_NAME=gitea
             - DB_USER=${POSTGRES_USER}
             - DB_PASSWD=${POSTGRES_PASSWORD}
+            - VIRTUAL_HOST=git.${HOSTNAME}
+            - VIRTUAL_PORT=3000
         restart: always
         networks:
             - traefik
             - db
         volumes:
             - ${DATA_DIR}/gitea/data:/data
-#        ports:
-#            - "3000:3000"
-#            - "222:22"
         labels:
             - "traefik.backend=gitea"
             - "traefik.docker.network=traefik"

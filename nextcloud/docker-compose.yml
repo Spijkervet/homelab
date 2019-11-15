@@ -7,23 +7,19 @@ services:
     container_name: nextcloud
     restart: always
     volumes:
-      - nextcloud:/var/www/html
+            # - nextcloud:/var/www/html
       - "${MEDIA_DIR}:/media"
-        #  - "${DATA_DIR}/nextcloud:/var/www/html"
+      - "${DATA_DIR}/nextcloud:/var/www/html"
     environment:
       - POSTGRES_DB=nextcloud
       - POSTGRES_HOST=db
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - VIRTUAL_HOST=cloud.${HOSTNAME}
+      - LETSENCRYPT_HOST=cloud.${HOSTNAME}
     networks:
       - traefik 
       - db 
-    labels:
-      - "traefik.backend=nextcloud"
-      - "traefik.docker.network=traefik"
-      - "traefik.enable=true"
-      - "traefik.frontend.rule=Host:cloud.${HOSTNAME}"
-      - "traefik.port=80"
 
   # backups:
   #   image: christophetd/duplicacy-autobackup:v1.0

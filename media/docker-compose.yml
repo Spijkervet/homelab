@@ -12,6 +12,7 @@ services:
       - PUID=${PUID}
       - PGID=${PGID}
       - TZ=${TZ}
+      - VIRTUAL_HOST=organizr.${HOSTNAME}
     networks:
       - traefik
     labels:
@@ -28,6 +29,7 @@ services:
       - PUID=${PUID}
       - PGID=${PGID}
       - TZ=${TZ}
+      - VIRTUAL_HOST=heimdall.${HOSTNAME}
     volumes:
       - ${DATA_DIR}/media/heimdall:/config
     restart: always
@@ -83,6 +85,7 @@ services:
       - PUID=${PUID}
       - PGID=${PGID}
       - TZ=${TZ}
+      - VIRTUAL_HOST=sabnzbd.${HOSTNAME}
     networks:
       - traefik
     labels:
@@ -111,6 +114,7 @@ services:
       - PUID=${PUID}
       - PGID=${PGID}
       - TZ=${TZ}
+      - VIRTUAL_HOST=radarr.${HOSTNAME}
     networks:
       - traefik
     labels:
@@ -147,6 +151,7 @@ services:
       - PUID=${PUID}
       - PGID=${PGID}
       - TZ=${TZ}
+      - VIRTUAL_HOST=sonarr.${HOSTNAME}
     networks:
       - traefik
     labels:
@@ -184,6 +189,7 @@ services:
       - PUID=${PUID}
       - PGID=${PGID}
       - TZ=${TZ}
+      - VIRTUAL_HOST=lidarr.${HOSTNAME}
     networks:
       - traefik
     labels:
@@ -209,12 +215,12 @@ services:
   plexms:
     container_name: plexms
     restart: always
-    image: plexinc/pms-docker:latest
+    image: plexinc/pms-docker 
     volumes:
       - ${DATA_DIR}/media/plexms:/config
       - ${DATA_DIR}/media/plex_tmp:/transcode
-      - ${MEDIA_DIR}:/media
       - ${DATA_DIR}/media/:/shared
+      - ${MEDIA_DIR}:/media
     ports:
       - "32400:32400/tcp"
       - "3005:3005/tcp"
@@ -231,7 +237,10 @@ services:
       - PLEX_CLAIM=${PLEX_CLAIM_TOKEN}
       - PLEX_UID=${PUID}
       - PLEX_GID=${PGID}
-      - ADVERTISE_IP="http://SERVER-IP:32400/"
+      - ADVERTISE_IP="http://{HOST_IP}:32400/"
+      - VIRTUAL_HOST=plex.${HOSTNAME}
+      - VIRTUAL_PORT=32400
+      - LETSENCRYPT_HOST=plex.${HOSTNAME}
     networks:
       - traefik
     labels:
@@ -251,74 +260,6 @@ services:
       # - "traefik.frontend.headers.STSPreload=true"
       # - "traefik.frontend.headers.frameDeny=true"
 
-  # Tautulli (aka PlexPy) – Monitoring Plex Usage
-  tautulli:
-    container_name: tautulli
-    restart: always
-    image: linuxserver/tautulli
-    volumes:
-      - ${DATA_DIR}/media/tautulli/config:/config
-      - ${DATA_DIR}/media/tautulli/logs:/logs:ro
-      - ${DATA_DIR}/media/shared:/shared
-#    ports:
-#      - "8181:8181"
-    environment:
-      - PUID=${PUID}
-      - PGID=${PGID}
-      - TZ=${TZ}
-    networks:
-      - traefik
-    labels:
-      - "traefik.enable=true"
-      - "traefik.backend=tautulli"
-      - "traefik.frontend.rule=Host:tautulli.${HOSTNAME}"
-#      - "traefik.frontend.rule=Host:${HOSTNAME}; PathPrefix: /tautulli"
-      - "traefik.port=8181"
-      - "traefik.docker.network=traefik"
-      - "traefik.frontend.headers.SSLRedirect=true"
-      - "traefik.frontend.headers.STSSeconds=315360000"
-      - "traefik.frontend.headers.browserXSSFilter=true"
-      - "traefik.frontend.headers.contentTypeNosniff=true"
-      - "traefik.frontend.headers.forceSTSHeader=true"
-      - "traefik.frontend.headers.SSLHost=example.com"
-      - "traefik.frontend.headers.STSIncludeSubdomains=true"
-      - "traefik.frontend.headers.STSPreload=true"
-      - "traefik.frontend.headers.frameDeny=true"
-
-  # Ombi – Accept Requests for your Media Server
-  ombi:
-    container_name: ombi
-    restart: always
-    image: linuxserver/ombi
-    volumes:
-      - ${DATA_DIR}/media/ombi:/config
-      - ${DATA_DIR}/media/shared:/shared
-      - ${MEDIA_DIR}:/media
-#    ports:
-#      - "3579:3579"
-    environment:
-      - PUID=${PUID}
-      - PGID=${PGID}
-      - TZ=${TZ}
-    networks:
-      - traefik
-    labels:
-      - "traefik.enable=true"
-      - "traefik.backend=ombi"
-      - "traefik.frontend.rule=Host:ombi.${HOSTNAME}"
-#      - "traefik.frontend.rule=Host:${HOSTNAME}; PathPrefix: /ombi"
-      - "traefik.port=3579"
-      - "traefik.docker.network=traefik"
-      - "traefik.frontend.headers.SSLRedirect=true"
-      - "traefik.frontend.headers.STSSeconds=315360000"
-      - "traefik.frontend.headers.browserXSSFilter=true"
-      - "traefik.frontend.headers.contentTypeNosniff=true"
-      - "traefik.frontend.headers.forceSTSHeader=true"
-      - "traefik.frontend.headers.SSLHost=example.com"
-      - "traefik.frontend.headers.STSIncludeSubdomains=true"
-      - "traefik.frontend.headers.STSPreload=true"
-      - "traefik.frontend.headers.frameDeny=true"
-
   ######### SEARCHERS ##########
   # NZBHydra – NZB Meta Search
   hydra:
@@ -333,6 +274,7 @@ services:
       - PUID=${PUID}
       - PGID=${PGID}
       - TZ=${TZ}
+      - VIRTUAL_HOST=hydra.${HOSTNAME}
     networks:
       - traefik
     labels:
@@ -367,6 +309,7 @@ services:
       - PUID=${PUID}
       - PGID=${PGID}
       - TZ=${TZ}
+      - VIRTUAL_HOST=jackett.${HOSTNAME}
     networks:
       - traefik
     labels:

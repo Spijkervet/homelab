@@ -10,9 +10,24 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     volumes:
     #  - "${DATA_DIR}/postgresql:/var/lib/postgresql/data"
-       - postgresql:/var/lib/postgresql/data
+      - postgresql:/var/lib/postgresql/data
     networks:
       - db 
+  dbbackup:
+    image: kartoza/pg-backup:10.0
+    hostname: pg-backups
+    volumes:
+      - /docker/postgres/backups:/backups
+    networks:
+      - db
+    environment:
+    # - DUMPPREFIX=PG_YOURSITE
+    # These are all defaults anyway, but setting explicitly in
+    # case we ever want to ever use different credentials
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASS=${POSTGRES_PASSWORD}
+      - POSTGRES_HOST=db
+      - POSTGRES_DBNAME=backups
 
 networks:
     db:

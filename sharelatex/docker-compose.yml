@@ -24,6 +24,7 @@ services:
             - ${DATA_DIR}/sharelatex/sharelatex_data:/var/lib/sharelatex
             - /var/run/docker.sock:/var/run/docker.sock
         environment:
+            VIRTUAL_HOST: sharelatex.${HOSTNAME}
 
             SHARELATEX_APP_NAME: Overleaf Community Edition
 
