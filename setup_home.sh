@@ -10,7 +10,7 @@ docker-compose -f soulseek/docker-compose.yml up -d
 docker-compose -f gitea/docker-compose.yml up -d
 docker-compose -f redis/docker-compose.yml up -d
 docker-compose -f postgres/docker-compose.yml up -d 
-# docker-compose -f odoo/docker-compose.yml up -d 
+docker-compose -f odoo/docker-compose.yml up -d 
 docker-compose -f watchtower/docker-compose.yml up -d 
 docker-compose -f media/docker-compose.yml up -d 
 # docker-compose -f sharelatex/docker-compose.yml up -d

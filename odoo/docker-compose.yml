@@ -8,8 +8,11 @@ services:
         - ${DATA_DIR}/odoo/addons:/mnt/extra-addons
     environment:
       - HOST=db
-      - USER=docker
-      - PASSWORD=postgres
+      - USER=${POSTGRES_USER}
+      - PASSWORD=${POSTGRES_PASSWORD}
+      - VIRTUAL_HOST=odoo.${HOSTNAME}
+      - VIRTUAL_PORT=8069
+      - LETSENCRYPT_HOST=odoo.${HOSTNAME}
     networks:
         - db 
         - traefik
@@ -24,5 +27,4 @@ networks:
     traefik:
         external: true
     db:
-        driver: overlay
-        name: db 
+        external: true

@@ -42,25 +42,28 @@ services:
       - "traefik.port=80"
       - "traefik.docker.network=traefik"
 
-#  transmission:
-#    image: linuxserver/transmission
-#    container_name: transmission
-#    environment:
-#      - PUID=${PUID}
-#      - PGID=${PGID}
-#      - TZ=${TZ}
-#      - TRANSMISSION_WEB_HOME=/combustion-release/ #optional
-#    volumes:
-#      - ${DATA_DIR}/media/transmission:/config
-#      - ${MEDIA_DIR}/media_001/transmission/downloads:/downloads
-#      - ${MEDIA_DIR}/media_001/transmission/downloads:/watch
-#    ports:
-#      - 9091:9091
-#      - 51413:51413
-#      - 51413:51413/udp
-#    restart: always 
-#    networks:
-#      - traefik
+  transmission:
+    image: linuxserver/transmission
+    container_name: transmission
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - TRANSMISSION_WEB_HOME=/combustion-release/ #optional
+      - VIRTUAL_HOST=transmission.${HOSTNAME}
+      - VIRTUAL_PORT=9091
+      - LETSENCRYPT_HOST=transmission.${HOSTNAME}
+    volumes:
+      - ${DATA_DIR}/media/transmission:/config
+      - ${DOWNLOADS_DIR}:/downloads
+      - ${MEDIA_DIR}/media_001/transmission/downloads:/watch
+    ports:
+      - 9091:9091
+      - 51413:51413
+      - 51413:51413/udp
+    restart: always 
+    networks:
+      - traefik
 #    labels:
 #      - "traefik.enable=true"
 #      - "traefik.backend=transmission"
@@ -73,19 +76,21 @@ services:
   sabnzbd:
     image: "linuxserver/sabnzbd"
     container_name: "sabnzbd"
+    hostname: sabnzbd.${HOSTNAME}
     volumes:
       - ${DATA_DIR}/media/sabnzbd:/config
-      - ${DATA_DIR}/media/downloads/complete:/downloads
-      - ${DATA_DIR}/media/downloads/incomplete:/incomplete-downloads
+      - ${DOWNLOADS_DIR}:/config/Downloads
       - ${DATA_DIR}/media/shared:/shared
-#    ports:
-#        - "XXXX:8080"
     restart: always
+    ports:
+      - 8080:8080
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
       - TZ=${TZ}
       - VIRTUAL_HOST=sabnzbd.${HOSTNAME}
+      - VIRTUAL_PORT=8080
+      - LETSENCRYPT_HOST=sabnzbd.${HOSTNAME}
     networks:
       - traefik
     labels:
@@ -103,7 +108,7 @@ services:
     container_name: "radarr"
     volumes:
       - ${DATA_DIR}/media/radarr:/config
-      - ${DATA_DIR}/media/downloads:/downloads
+      - ${DOWNLOADS_DIR}:/downloads
       - ${MEDIA_DIR}:/media
       # - "/etc/localtime:/etc/localtime:ro"
       - ${DATA_DIR}/media/shared:/shared
@@ -140,7 +145,7 @@ services:
     container_name: "sonarr"
     volumes:
       - ${DATA_DIR}/media/sonarr:/config
-      - ${DATA_DIR}/media/downloads:/downloads
+      - ${DOWNLOADS_DIR}:/downloads
       - ${MEDIA_DIR}:/media
       # - "/etc/localtime:/etc/localtime:ro"
       - ${DATA_DIR}/media/shared:/shared
@@ -178,7 +183,7 @@ services:
     container_name: "lidarr"
     volumes:
       - ${DATA_DIR}/media/lidarr:/config
-      - ${DATA_DIR}/media/downloads:/downloads
+      - ${DOWNLOADS_DIR}:/downloads
       - ${MEDIA_DIR}:/media
       # - "/etc/localtime:/etc/localtime:ro"
       - ${DATA_DIR}/media/shared:/shared
@@ -263,11 +268,11 @@ services:
   ######### SEARCHERS ##########
   # NZBHydra – NZB Meta Search
   hydra:
-    image: "linuxserver/hydra"
-    container_name: "hydra"
+    image: "linuxserver/hydra2"
+    container_name: "hydra2"
     volumes:
       - ${DATA_DIR}/media/hydra:/config
-      - ${DATA_DIR}/media/downloads:/downloads
+      - ${DOWNLOADS_DIR}:/downloads
       - ${DATA_DIR}/media/shared:/shared
     restart: always
     environment:
@@ -275,13 +280,15 @@ services:
       - PGID=${PGID}
       - TZ=${TZ}
       - VIRTUAL_HOST=hydra.${HOSTNAME}
+      - VIRTUAL_PORT=5076
+      - LETSENCRYPT_HOST=hydra.${HOSTNAME}
     networks:
       - traefik
     labels:
       - "traefik.enable=true"
       - "traefik.backend=hydra"
       - "traefik.frontend.rule=Host:hydra.${HOSTNAME}"
-      - "traefik.port=5075"
+      - "traefik.port=5076"
       - "traefik.docker.network=traefik"
       - "traefik.frontend.headers.SSLRedirect=true"
       - "traefik.frontend.headers.STSSeconds=315360000"
@@ -299,7 +306,7 @@ services:
     container_name: "jackett"
     volumes:
       - ${DATA_DIR}/media/jackett:/config
-      - ${DATA_DIR}/media/downloads:/downloads
+      - ${DOWNLOADS_DIR}/complete:/downloads/complete
       # - "/etc/localtime:/etc/localtime:ro"
       - ${DATA_DIR}/media/shared:/shared
     ports:
@@ -327,6 +334,26 @@ services:
       - "traefik.frontend.headers.STSIncludeSubdomains=true"
       - "traefik.frontend.headers.STSPreload=true"
       - "traefik.frontend.headers.frameDeny=true"
+
+  headphones:
+    image: linuxserver/headphones
+    container_name: headphones
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+      - VIRTUAL_HOST=headphones.${HOSTNAME}
+      - VIRTUAL_PORT=8181
+      - LETSENCRYPT_HOST=headphones.${HOSTNAME}
+    volumes:
+      - ${DATA_DIR}/media/headphones:/config
+      - ${DOWNLOADS_DIR}/complete:/downloads/complete
+      - ${MUSIC_DIR}:/music
+    networks:
+      - traefik
+    ports:
+      - 8181:8181
+    restart: unless-stopped
 
 networks:
   traefik:
