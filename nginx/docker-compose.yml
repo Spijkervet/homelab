@@ -4,10 +4,12 @@ services:
   nginx-proxy:
     image: jwilder/nginx-proxy
     container_name: nginx-proxy
+    restart: always
     ports:
       - "80:80"
       - "443:443"
     volumes:
+      - ./custom_proxy_settings.conf:/etc/nginx/conf.d/custom_proxy_settings.conf
       - conf:/etc/nginx/conf.d
       - vhost:/etc/nginx/vhost.d
       - html:/usr/share/nginx/html
@@ -19,6 +21,7 @@ services:
 
   letsencrypt:
     image: jrcs/letsencrypt-nginx-proxy-companion
+    restart: always
     container_name: nginx-proxy-le
     volumes_from:
       - nginx-proxy

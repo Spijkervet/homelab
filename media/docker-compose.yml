@@ -56,7 +56,7 @@ services:
     volumes:
       - ${DATA_DIR}/media/transmission:/config
       - ${DOWNLOADS_DIR}:/downloads
-      - ${MEDIA_DIR}/media_001/transmission/downloads:/watch
+      - ${DOWNLOADS_DIR}:/watch
     ports:
       - 9091:9091
       - 51413:51413
